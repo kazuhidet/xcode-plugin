@@ -33,10 +33,7 @@ track them.
 
 *Important!*
 
-We will soon release a new version of the Jenkins Xcode Integrate
-Plugin.
-
-In this version, compatibility with the current version is maintained.
+Newesth version is compatibility with the previous version priour 2.0.12 is maintained.
 However, major changes have been made to the handling of macOS
 keychains.
 
