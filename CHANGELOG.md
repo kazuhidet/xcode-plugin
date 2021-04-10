@@ -5,6 +5,9 @@ Changelog
 
 See [GitHub releases](https://github.com/jenkinsci/xcode-plugin/releases)
 
+#### Version 2.0.14 (14th Nov 2019)
+-   ##### Fix backward compatibility problem at Import Developer Profile.
+
 #### Version 2.0.13 (14th Nov 2019)
 -   ##### Information to access the macOS keychain has been moved to credentials.
 -   Fixed a bug in the project parser when multiple projects are in the workspace. ([JENKINS-59523](https://issues.jenkins-ci.org/browse/JENKINS-59523), [JENKINS-59609](https://issues.jenkins-ci.org/browse/JENKINS-59609))

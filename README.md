@@ -2,8 +2,7 @@ Xcode plugin
 ------------
 
 This plugin adds the ability to call Xcode command line tools to automate build and packaging iOS applications (iPhone, iPad, ...).
-*  More documentation about how to use it : https://wiki.jenkins-ci.org/display/JENKINS/Xcode+Plugin
-*  Report all issues or features requests in Jira : https://issues.jenkins-ci.org/browse/JENKINS/component/16124
+*  Report all issues or features requests in Jira : https://issues.jenkins-ci.org/issues/?jql=component%20%3D%20xcode-plugin
 
 Contact the Jenkins Community by [mail](http://jenkins-ci.org/content/mailing-lists) or [irc](http://jenkins-ci.org/content/chat) to have support.
 
@@ -304,6 +303,59 @@ archive output in the Xcode Build step.
 |Keychain name	                |keychainName	            |2.0.1	        |The name of the configured keychain to use to retrieve certificates to sign the package.
 |Keychain path	                |keychainPath	            |2.0.1	        |The path of the keychain to use to retrieve certificates to sign the package (default : ${HOME}/Library/Keychains/login.keychain).
 |Keychain password	            |keychainPwd	            |2.0.1	        |The password of the keychain to use to retrieve certificates to sign the package.
+    
+#### Compiling Xcode projects and exporting IPApackages using Jenkins's Pipeline function
+    
+1.  Import developer profile.
+
+    ``` syntaxhighlighter-pre
+            importDeveloperProfile(importIntoExistingKeychain: false,
+                profileId: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX')
+    ```
+
+2.  Build the project and output the archive.
+
+    ``` syntaxhighlighter-pre
+            xcodeBuild(
+              xcodeSchema: "${PROJECT_SCHEMA}",
+              ipaOutputDirectory: 'Release',
+              ipaExportMethod: 'app-store',
+              generateArchive: true,
+              buildIpa: true,
+              ipaName: "${BUILD_TARGET}",
+              bundleID: 'com.example.TargetApp',
+              developmentTeamName: "${DEVELOPMENT_TEAM_NAME}",
+              cleanBeforeBuild: true,
+              configuration: 'Release',
+              cfBundleShortVersionStringValue: '1.0.0',
+              cfBundleVersionValue: '1'
+            )
+    ```
+
+3.  Export the IPA file from the archive.
+
+    ``` syntaxhighlighter-pre
+        exportIpa(
+            archiveDir: "${WORKSPACE}/${repositoryName}/build/Release-iphoneos",
+            xcodeSchema: "${PROJECT_SCHEMA}",
+            developmentTeamName: "${DEVELOPMENT_TEAM}",
+            configuration: "AdHoc",
+            infoPlistPath: "${INFO_PLIST}",
+            manualSigning: true,
+            provisioningProfiles: [
+                [provisioningProfileAppId: "${BUNDLE_ID}", provisioningProfileUUID: 'TestApp_AdHoc_Profile.mobileprovision']
+                [provisioningProfileAppId: "${BUNDLE_ID}.watchkitapp", provisioningProfileUUID: 'TestApp_AdHoc_Profile.mobileprovision'],
+                [provisioningProfileAppId: "${BUNDLE_ID}.watchkitapp.watchkitextension", provisioningProfileUUID: 'TestApp_AdHoc_Profile.mobileprovision']
+            ],
+            ipaExportMethod: "ad-hoc",
+            ipaName: "${BUILD_TARGET}",
+            ipaOutputDirectory: "AdHoc"
+        )
+    ```
+
+4.  Upload the exported IPA file.  
+
+> When using "XCode's" Automatically manage signing ", various ways are required, so please note the points to be noted separately.
 
 #####  Using multiple versions of xcode.
 
