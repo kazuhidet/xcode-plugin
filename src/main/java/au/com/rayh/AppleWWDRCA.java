@@ -4,6 +4,7 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import hudson.Extension;
 import hudson.security.ACL;
+import hudson.util.FormValidation;
 import hudson.util.Secret;
 
 import java.io.ByteArrayInputStream;
@@ -26,10 +27,14 @@ import jenkins.security.ConfidentialKey;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
+import org.kohsuke.stapler.QueryParameter;
 
 /**
  * Apple Worldwide Developer Relations Certification Authority, which consists of any number of
@@ -38,10 +43,6 @@ import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
  * @author Kazuhide Takahashi
  */
 public class AppleWWDRCA extends BaseStandardCredentials {
-    public String getId() {
-        return ( super.getId() == null ? "AppleWWDRCA" : super.getId() );
-    }
-
     @DataBoundConstructor
     public AppleWWDRCA(@CheckForNull CredentialsScope scope, @CheckForNull String id, @CheckForNull String description,
             FileItem image) throws IOException {
@@ -124,7 +125,7 @@ public class AppleWWDRCA extends BaseStandardCredentials {
         }
     }
 
-    public static List<AppleWWDRCA> getAllProfiles() {
+    public static List<AppleWWDRCA> getAllCertificates() {
 	    return CredentialsProvider.lookupCredentials(AppleWWDRCA.class, (hudson.model.Item)null, ACL.SYSTEM, Collections.<DomainRequirement>emptyList());
     }
 }

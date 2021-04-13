@@ -72,7 +72,8 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     @CheckForNull
     private Secret keychainPwd;
     @CheckForNull
-    private String pwdForDebug;
+    private String appleWWDRCAcertId;
+
     @CheckForNull
     public String getProfileId() {
         return profileId;
@@ -129,14 +130,6 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         return keychainPwd;
     }
 
-    /**
-     * @since 2.0.15
-     */
-    @CheckForNull
-    public String getPwdForDebug() {
-        return pwdForDebug;
-    }
-
     @DataBoundSetter
     public void setKeychainPwd(Secret keychainPwd) {
         this.keychainPwd = keychainPwd;
@@ -145,9 +138,12 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     /**
      * @since 2.0.15
      */
+    @CheckForNull
+    public String getAppleWWDRCAcertId() { return appleWWDRCAcertId; }
+
     @DataBoundSetter
-    public void setPwdForDebug(String pwdForDebug) {
-        this.pwdForDebug = pwdForDebug;
+    public void setAppleWWDRCAcertId(String appleWWDRCAcertId) {
+        this.appleWWDRCAcertId = appleWWDRCAcertId;
     }
 
     @DataBoundConstructor
@@ -167,6 +163,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         String _keychainId = envs.expand(this.keychainId);
         String _keychainName = envs.expand(this.keychainName);
         Boolean _importIntoExistingKeychain = this.importIntoExistingKeychain;
+        String _appleWWDRCAcertId = envs.expand(this.appleWWDRCAcertId);
         DeveloperProfile dp = getProfile(run.getParent(), _profileId);
         if ( dp == null )
             throw new AbortException(Messages.DeveloperProfile_NoDeveloperProfileConfigured());
@@ -211,12 +208,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         else {
             // Use temporary keychain with random UUID nasme.
             _keychainPath = "jenkins-" + run.getParent().getFullName().replace('/', '-');
-            if ( StringUtils.isNotEmpty(this.pwdForDebug) ) {
-                _keychainPwd = envs.expand(this.pwdForDebug);
-            }
-            else {
-                _keychainPwd = UUID.randomUUID().toString();
-            }
+            _keychainPwd = UUID.randomUUID().toString();
 	        _importIntoExistingKeychain = Boolean.valueOf(false);
         }
 
@@ -299,7 +291,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
 	    }
 
         if ( BooleanUtils.isNotTrue(_importIntoExistingKeychain) ) {
-            importAppleCert(run.getParent(), launcher, listener, workspace, _keychainPath, secret);
+            importAppleCert(run.getParent(), launcher, listener, workspace, _keychainPath, secret, _appleWWDRCAcertId);
         }
 
         // copy provisioning profiles
@@ -354,15 +346,21 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
                 CredentialsMatchers.withId(keychainId));
     }
 
-    public void importAppleCert(Item context, Launcher launcher, TaskListener listener, FilePath workspace, String keychainPath, FilePath secret) throws IOException, InterruptedException {
+    public void importAppleCert(Item context, Launcher launcher, TaskListener listener, FilePath workspace,
+                                String keychainPath, FilePath secret, String appleWWDRCAcertId) throws IOException, InterruptedException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         FilePath homeFolder = workspace.getHomeDirectory(workspace.getChannel());
         String cert = null;
-        AppleWWDRCA cr_cert = getAppleWWDRCA(context);
-        if ( cr_cert != null ) {
-            listener.getLogger().println(Messages.DeveloperProfileLoader_ImportAppleWWDRCAFromCredentials());
-            secret.child("AppleWWDRCA.cer").write().write(cr_cert.getImage());
-            cert = secret.child("AppleWWDRCA.cer").getRemote();
+        if ( !appleWWDRCAcertId.isEmpty() ) {
+            AppleWWDRCA cr_cert = getAppleWWDRCA(context, appleWWDRCAcertId);
+            if ( cr_cert == null ) {
+                listener.getLogger().println(Messages.DeveloperProfileLoader_AppleWWDRCAWasNotFoundInCredentials());
+            }
+            else {
+                listener.getLogger().println(Messages.DeveloperProfileLoader_ImportAppleWWDRCAFromCredentials());
+                secret.child("AppleWWDRCA.cer").write().write(cr_cert.getImage());
+                cert = secret.child("AppleWWDRCA.cer").getRemote();
+            }
         }
         else if ( homeFolder.child("AppleWWDRCA.cer").exists() ) {
             listener.getLogger().println(Messages.DeveloperProfileLoader_ImportAppleWWDRCAFromLocalFilesystem());
@@ -403,11 +401,11 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
                 CredentialsMatchers.withId(profileId));
     }
 
-    public AppleWWDRCA getAppleWWDRCA(Item context) {
+    public AppleWWDRCA getAppleWWDRCA(Item context, String appleWWDRCAcertId) {
         return (AppleWWDRCA)CredentialsMatchers.firstOrNull(
                 CredentialsProvider.lookupCredentials(AppleWWDRCA.class, context,
                         ACL.SYSTEM, Collections.EMPTY_LIST),
-                CredentialsMatchers.withId("AppleWWDRCA"));
+                CredentialsMatchers.withId(appleWWDRCAcertId));
     }
 
     @Extension
@@ -456,18 +454,18 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckKeychainPath(@QueryParameter String value, @QueryParameter String keychainName, @QueryParameter Boolean importIntoExistingKeychain) {
+        public FormValidation doCheckKeychainPath(@QueryParameter String value, @QueryParameter String keychainId, @QueryParameter Boolean importIntoExistingKeychain) {
             if ( BooleanUtils.isTrue(importIntoExistingKeychain) ) {
-                if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(value) ) {
+                if ( StringUtils.isEmpty(keychainId) && StringUtils.isEmpty(value) ) {
                     return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPath());
                 }
             }
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckKeychainPwd(@QueryParameter Secret value, @QueryParameter String keychainName, @QueryParameter Boolean importIntoExistingKeychain) {
+        public FormValidation doCheckKeychainPwd(@QueryParameter Secret value, @QueryParameter String keychainId, @QueryParameter Boolean importIntoExistingKeychain) {
             if ( BooleanUtils.isTrue(importIntoExistingKeychain) ) {
-                if ( StringUtils.isEmpty(keychainName) && StringUtils.isEmpty(Secret.toString(value)) ) {
+                if ( StringUtils.isEmpty(keychainId) && StringUtils.isEmpty(Secret.toString(value)) ) {
                     return FormValidation.error(Messages.DeveloperProfileLoader_MustSpecifyKeychainPwd());
                 }
             }
