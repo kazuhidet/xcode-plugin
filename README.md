@@ -19,12 +19,9 @@ A problem, An idea ?
 *Please use our tasks and issues tracker to report bugs, improvements or
 new feature.*
 
--   [Report a
-    bug](https://issues.jenkins-ci.org/secure/CreateIssueDetails!init.jspa?Create=Create&components=16124&pid=10172&issuetype=1)
--   [Ask for a new
-    feature](https://issues.jenkins-ci.org/secure/CreateIssueDetails!init.jspa?Create=Create&components=16124&pid=10172&issuetype=2)
--   [Ask for an improvement of an existing
-    feature](https://issues.jenkins-ci.org/secure/CreateIssueDetails!init.jspa?Create=Create&components=16124&pid=10172&issuetype=4)
+-   [Report a bug](https://issues.jenkins-ci.org/secure/CreateIssueDetails!init.jspa?Create=Create&components=16124&pid=10172&issuetype=1)
+-   [Ask for a new feature](https://issues.jenkins-ci.org/secure/CreateIssueDetails!init.jspa?Create=Create&components=16124&pid=10172&issuetype=2)
+-   [Ask for an improvement of an existing feature](https://issues.jenkins-ci.org/secure/CreateIssueDetails!init.jspa?Create=Create&components=16124&pid=10172&issuetype=4)
 
 Also if you want to propose some code change using a Github pull
 request, please open also a Jira issue. It is easier for developers to
@@ -167,12 +164,80 @@ which is useful for distributing with multiple Jenkins nodes.
 |-------------------------------|----------------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Developer Profile             | profileId                  | 2.0.1         | Select the developer profile you exported from Xcode Preference to import into the keychain. Developer profile must be registered with Jenkins in advance by "Credentials". If you do not select this column, you can specify the identifier of the developer profile registered in "Credentials" with the next "Developer Profile ID".    |
 | Import into existing Keychain | importIntoExistingKeychain | 2.0.6         | If it is checked, the developer profile will be imported into the existing keychain. If not checked, create a new key chain with the file name "jenkins-" + "job name" newly, and import the developer profile into this. (In this case, a random character string is automatically generated and used for the password)                   |
-| Target keychain               | keychainId                 | 2.0.13        | The ID of the configured keychain to use to import certificates from developer profile to sign the package.                                                                                                                                                                                                                              |
-| Target keychain               | keychainName<br>This has been deprecated and has now been replaced by "keychainId".| 2.0.6         | The name of the configured keychain to use to import certificates from developer profile to sign the package.                                                                                                                                                                                                                              |
+| Target keychain               | keychainId                 | 2.0.13        | The ID of the configured keychain to use to import certificates from developer profile to sign the package.                                                                                                                                                                                                                                |
+| Target keychain               | keychainName<br>This has been deprecated and has now been replaced by "keychainId".| 2.0.6         | The name of the configured keychain to use to import certificates from developer profile to sign the package.                                                                                                                                                                      |
 | Keychain path                 | keychainPath               | 2.0.6         | Keychain path to import developer profile.                                                                                                                                                                                                                                                                                                 |
 | Keychain password             | keychainPwd                | 2.0.6         | Password to unlock keychain importing developer profile.                                                                                                                                                                                                                                                                                   |
+| AppleWWDRCA                   | appleWWDRCAcertId          | 2.0.15        | Select the AppleWWDRCA (Intermediate Certificate) you exported from macOS keychain to import into the Jenkins node(s) keychain. AppleWWDRCA must be registered with Jenkins in advance by "Credentials".                                                                                                                                   |
 
-Limitations
+###### How to export AppleWWDRCA (Intermediate Certificate) from your macOS keychain.
+
+If you have an environment where you use Xcode on a daily basis and you can code sign your app using Xcode,
+you will have the necessary Apple WWDRCA intermediate certificate in your macOS keychain.
+You can export this using KeychainAccess utility.
+
+When exporting Apple WWDRCA (intermediate certificate) from macOS keychain,
+include all "Apple Worldwide Developer Relations Certification Authority" (expired in 2023 and expired in 2030) and "Apple Developer ID Certification Authority" as follows. Select and export.
+
+![Select certificates](docs/images/ScreenShot_2021-04-13_21.04.34.png)
+
+Choose "Export 3 items" from context menu.
+
+![Select export items](docs/images/ScreenShot_2021-04-13_21.05.45.png)
+
+Select "Certificate (.cer)" for "File format:" when exporting.
+
+![export certificates](docs/images/ScreenShot_2021-04-13_21.06.34.png)
+
+If the Jenkins node is in a remote location like a cloud service,
+In an environment where the WWDRCA intermediate certificate is not installed on your macOS,
+you can download the certificate from the "Certificate Authority page"(https://www.apple.com/certificateauthority/) of the Apple Developer Portal and use it.
+
+![Select certificates](docs/images/ScreenShot_2021-04-13_22.39.25.png)
+
+The file downloaded from the Apple Developer Portal (extension .cer) has a binary format DER format,
+so use the openssl command to convert it to BASE64 encoded text and combine the three downloaded files into one file.
+
+```shell
+% (openssl x509 -in ~/Downloads/DeveloperIDCA.cer -inform der -out - && \
+openssl x509 -in ~/Downloads/AppleWWDRCA.cer -inform der -out - && \
+openssl x509 -in ~/Downloads/AppleWWDRCAG3.cer -inform der -out -) > AppleWWDRCA.cer
+```
+
+Whether you export the certificate using Keychain Access or convert and combine the files downloaded from the Apple Developer Portal,
+the resulting AppleWWDRCA.cer file will have the same content.
+
+###### How to import AppleWWDRCA (Intermediate Certificate) to your Jenkins certificates.
+
+Select "Manage Jenkins" on the dashboard.
+
+![Select Manage Jenkins](docs/images/ScreenShot_2021-04-13_21.58.10.png)
+
+Select "Manage Credentials".
+
+![Select Manage Credentials](docs/images/ScreenShot_2021-04-13_21.58.31.png)
+
+You can add new credentials to your "global" domain by clicking "(grobal)" from "Stores scoped to Jenkins"
+and selecting "Add Credentials" from the top left of the displayed page.
+
+![Select (grobal)](docs/images/ScreenShot_2021-04-13_21.59.20.png)
+
+And then click "Add Credentials".
+
+![Select Add Credentials](docs/images/ScreenShot_2021-04-13_22.00.05.png)
+
+For "Kind", select "Apple Worldwide Developer Relations Certification Authority".
+Then click "Choose file".
+
+![Select Choose file](docs/images/ScreenShot_2021-04-13_22.03.30.png)
+
+Select and upload the certificate file (.cer) that you previously exported from Keychain
+or downloaded from the Apple Developer Portal.
+
+![Select .cer file from chooser](docs/images/ScreenShot_2021-04-13 22.03.04.png)
+
+
+###### Limitations
 
 The Xcode Integration Plugin has the function of importing the secret
 key and certificate of the developer account into the temporary key
