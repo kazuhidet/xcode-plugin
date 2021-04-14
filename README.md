@@ -234,7 +234,7 @@ Then click "Choose file".
 Select and upload the certificate file (.cer) that you previously exported from Keychain
 or downloaded from the Apple Developer Portal.
 
-![Select .cer file from chooser](docs/images/ScreenShot_2021-04-13 22.03.04.png)
+![Select .cer file from chooser](docs/images/ScreenShot_2021-04-13_22.03.04.png)
 
 
 ###### Limitations
