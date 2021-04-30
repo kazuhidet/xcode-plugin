@@ -98,9 +98,9 @@
         <j:if test="${!empty(appleWWDRCACertificates)}">
             <f:entry title="${%AppleWWDRCA}" description="${%Specify the AppleWWDRCA to import into the keychain.}" field="appleWWDRCACertificate"
                 help="/plugin/xcode-plugin/help/help-ImportAppleWWDRCAId.html" >
-                <select class="setting-input" name="appleWWDRCAcertId">
+                <select class="setting-input" name="appleWWDRCACertId">
                     <j:forEach var="certificate" items="${appleWWDRCACertificates}">
-                        <f:option selected="${certificate.getId()==instance.appleWWDRCAcertId}" value="${certificate.getId()}">${certificate.getDescription()}</f:option>
+                        <f:option selected="${certificate.getId()==instance.appleWWDRCACertId}" value="${certificate.getId()}">${certificate.getDescription()}</f:option>
                     </j:forEach>
                 </select>
             </f:entry>

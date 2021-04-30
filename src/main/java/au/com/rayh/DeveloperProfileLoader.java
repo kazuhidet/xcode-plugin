@@ -72,7 +72,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     @CheckForNull
     private Secret keychainPwd;
     @CheckForNull
-    private String appleWWDRCAcertId;
+    private String appleWWDRCACertId;
 
     @CheckForNull
     public String getProfileId() {
@@ -139,11 +139,11 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
      * @since 2.0.15
      */
     @CheckForNull
-    public String getAppleWWDRCAcertId() { return appleWWDRCAcertId; }
+    public String getAppleWWDRCACertId() { return appleWWDRCACertId; }
 
     @DataBoundSetter
-    public void setAppleWWDRCAcertId(String appleWWDRCAcertId) {
-        this.appleWWDRCAcertId = appleWWDRCAcertId;
+    public void setAppleWWDRCACertId(String appleWWDRCACertId) {
+        this.appleWWDRCACertId = appleWWDRCACertId;
     }
 
     @DataBoundConstructor
@@ -163,7 +163,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
         String _keychainId = envs.expand(this.keychainId);
         String _keychainName = envs.expand(this.keychainName);
         Boolean _importIntoExistingKeychain = this.importIntoExistingKeychain;
-        String _appleWWDRCAcertId = envs.expand(this.appleWWDRCAcertId);
+        String _appleWWDRCACertId = envs.expand(this.appleWWDRCACertId);
         DeveloperProfile dp = getProfile(run.getParent(), _profileId);
         if ( dp == null )
             throw new AbortException(Messages.DeveloperProfile_NoDeveloperProfileConfigured());
@@ -291,7 +291,7 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
 	    }
 
         if ( BooleanUtils.isNotTrue(_importIntoExistingKeychain) ) {
-            importAppleCert(run.getParent(), launcher, listener, workspace, _keychainPath, secret, _appleWWDRCAcertId);
+            importAppleCert(run.getParent(), launcher, listener, workspace, _keychainPath, secret, _appleWWDRCACertId);
         }
 
         // copy provisioning profiles
@@ -347,12 +347,12 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     }
 
     public void importAppleCert(Item context, Launcher launcher, TaskListener listener, FilePath workspace,
-                                String keychainPath, FilePath secret, String appleWWDRCAcertId) throws IOException, InterruptedException {
+                                String keychainPath, FilePath secret, String appleWWDRCACertId) throws IOException, InterruptedException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         FilePath homeFolder = workspace.getHomeDirectory(workspace.getChannel());
         String cert = null;
-        if ( !appleWWDRCAcertId.isEmpty() ) {
-            AppleWWDRCA cr_cert = getAppleWWDRCA(context, appleWWDRCAcertId);
+        if ( !appleWWDRCACertId.isEmpty() ) {
+            AppleWWDRCA cr_cert = getAppleWWDRCA(context, appleWWDRCACertId);
             if ( cr_cert == null ) {
                 listener.getLogger().println(Messages.DeveloperProfileLoader_AppleWWDRCAWasNotFoundInCredentials());
             }
@@ -401,11 +401,11 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
                 CredentialsMatchers.withId(profileId));
     }
 
-    public AppleWWDRCA getAppleWWDRCA(Item context, String appleWWDRCAcertId) {
+    public AppleWWDRCA getAppleWWDRCA(Item context, String appleWWDRCACertId) {
         return (AppleWWDRCA)CredentialsMatchers.firstOrNull(
                 CredentialsProvider.lookupCredentials(AppleWWDRCA.class, context,
                         ACL.SYSTEM, Collections.EMPTY_LIST),
-                CredentialsMatchers.withId(appleWWDRCAcertId));
+                CredentialsMatchers.withId(appleWWDRCACertId));
     }
 
     @Extension
