@@ -72,12 +72,12 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
     @CheckForNull
     private Secret keychainPwd;
     @CheckForNull
-    public String getDeveloperProfileId() {
+    public String getProfileId() {
         return profileId;
     }
 
     @DataBoundSetter
-    public void setDeveloperProfileId(String developerProfileId) {
+    public void setProfileId(String developerProfileId) {
         this.profileId = developerProfileId;
     }
 
@@ -366,10 +366,6 @@ public class DeveloperProfileLoader extends Builder implements SimpleBuildStep {
                 CredentialsProvider.lookupCredentials(DeveloperProfile.class, context,
                         ACL.SYSTEM, Collections.EMPTY_LIST),
                 CredentialsMatchers.withId(profileId));
-    }
-
-    public String getProfileId() {
-        return profileId;
     }
 
     @Extension

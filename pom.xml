@@ -32,7 +32,7 @@
     <relativePath />
   </parent>
   <artifactId>xcode-plugin</artifactId>
-  <version>2.0.13-SNAPSHOT</version>
+  <version>2.0.16-SNAPSHOT</version>
   <packaging>hpi</packaging>
   <name>Xcode integration</name>
   <description>This plugin adds the ability to call Xcode command line tools to automate build and packaging iOS applications (iPhone, iPad, ...).</description>
