@@ -96,6 +96,19 @@ public class XcodeProjectParser {
 	ProjectScheme projectScheme = new ProjectScheme();
 	try {
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+	    String FEATURE = null;
+	    FEATURE = "http://apache.org/xml/features/disallow-doctype-decl";
+	    factory.setFeature(FEATURE, true);
+	    FEATURE = "http://xml.org/sax/features/external-general-entities";
+	    factory.setFeature(FEATURE, false);
+	    FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+	    factory.setFeature(FEATURE, false);
+	    FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+	    factory.setFeature(FEATURE, false);
+	    factory.setXIncludeAware(false);
+	    factory.setExpandEntityReferences(false);
+
 	    DocumentBuilder documentBuilder = factory.newDocumentBuilder();
 	    Document document = documentBuilder.parse(schemeFile.read());
 
@@ -179,6 +192,19 @@ public class XcodeProjectParser {
 	try {
 	    FilePath workspaceFilePath = workspaceFileLocation.child("contents.xcworkspacedata");
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+	    String FEATURE = null;
+	    FEATURE = "http://apache.org/xml/features/disallow-doctype-decl";
+	    factory.setFeature(FEATURE, true);
+	    FEATURE = "http://xml.org/sax/features/external-general-entities";
+	    factory.setFeature(FEATURE, false);
+	    FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+	    factory.setFeature(FEATURE, false);
+	    FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+	    factory.setFeature(FEATURE, false);
+	    factory.setXIncludeAware(false);
+	    factory.setExpandEntityReferences(false);
+
 	    DocumentBuilder documentBuilder = factory.newDocumentBuilder();
 	    Document document = documentBuilder.parse(workspaceFilePath.read());
 
