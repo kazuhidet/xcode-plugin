@@ -4,15 +4,11 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import hudson.Extension;
 import hudson.security.ACL;
-import hudson.util.FormValidation;
-import hudson.util.Secret;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.*;
@@ -27,14 +23,10 @@ import jenkins.security.ConfidentialKey;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
-import org.kohsuke.stapler.QueryParameter;
 
 /**
  * Apple Worldwide Developer Relations Certification Authority, which consists of any number of
@@ -52,11 +44,6 @@ public class AppleWWDRCA extends BaseStandardCredentials {
             // for added secrecy, store this in the confidential store
             new ConfidentialKeyImpl(id).store(image);
         }
-    }
-
-    @Deprecated
-    public AppleWWDRCA(String id, String description, FileItem image) throws IOException {
-        this(CredentialsScope.GLOBAL, id, description, image);
     }
 
     /**
