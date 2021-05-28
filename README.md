@@ -312,13 +312,7 @@ XMLs". This will tell Jenkins to pick up the JUnit-format test reports.~~
 |Asset pack URL	                |assetPackManifestURL	    |2.0.3	        |Export settings for non-App Store App.<br>If the application is using on-demand resources and the application will installing OTA with manifest.plist, this must be the base URL that specifies the host of the asset pack. This will set up the app to download the asset pack from the specified URL.|
 |Strip Swift Symbols?	        |stripSwiftSymbols	        |2.0.5	        |If checked, symbols be stripped from Swift libraries when exporting the application to IPA.|
 |~~Manual signing?~~            |~~manualSigning~~<br>This has been deprecated and has now been replaced by "signingMethod".|2.0.1	|For this option you need to manually specify the combination of Provisioning profile UUID and BundleID.<br>This will be useful if you want to change the combination of Provisioning Profile and Certificate used for CodeSign when you build the application.|
-|Code signing settings	        |signingMethod	            |2.0.7      	|This attribute can take one of the following three values.<br>"automatic" (Check "Automatic Signing")<br>Checking this option will automatically generate Provi
-sioning Profile and certificates for signing application.<br>However, please be aware that using this function will automatically create Provisioning profile an
-d certificates as necessary, so that old Provisioning profile and certificates will be invalid at that time.<br>"manual" (Check "Manual signing")<br>For this op
-tion you need to manually specify the combination of Provisioning profile UUID and BundleID.<br>This will be useful if you want to change the combination of Pro
-visioning Profile and Certificate used for CodeSign when you build the application.<br>"readFromProject" (Check "Read from Xcode Project")<br>With this option,
-it automatically retrieve and sets the combination of BundleID and Provisioning profile UUID from the Xcode project file.<br>This is useful when you want to tak
-e over the combination of BundleID and Provisioning profile UUID that you used in the Xcode project (GUI).|
+|Code signing settings	        |signingMethod	            |2.0.7      	|This attribute can take one of the following three values.<br>"automatic" (Check "Automatic Signing")<br>Checking this option will automatically generate Provisioning Profile and certificates for signing application.<br>However, please be aware that using this function will automatically create Provisioning profile and certificates as necessary, so that old Provisioning profile and certificates will be invalid at that time.<br>"manual" (Check "Manual signing")<br>For this option you need to manually specify the combination of Provisioning profile UUID and BundleID.<br>This will be useful if you want to change the combination of Provisioning Profile and Certificate used for CodeSign when you build the application.<br>"readFromProject" (Check "Read from Xcode Project")<br>With this option, it automatically retrieve and sets the combination of BundleID and Provisioning profile UUID from the Xcode project file.<br>This is useful when you want to take over the combination of BundleID and Provisioning profile UUID that you used in the Xcode project (GUI).|
 |Bundle ID                      |provisioningProfiles: [provisioningProfileAppId]	|2.0.1	|Specify the Bundle ID of the application for which code sign to be performed.<br>If the location of the Info.plist file contained in the compiled archive is set instead of the Bundle ID, read the Bundle ID from the Info.plist file and use that value.|
 |Provisioning Profiles          |                           |               |               |
 |Provisioning profiles UUID	    |provisioningProfiles: [provisioningProfileUUID]    |2.0.1	|Specify the UUID or Specifire of the provisioning profile to use to sign the application. If the location of the provisioning profile is set instead of the UUID or Specifire, read the UUID from the provisioning profile and use that value.
@@ -386,14 +380,14 @@ archive output in the Xcode Build step.
     
 #### Compiling Xcode projects and exporting IPApackages using Jenkins's Pipeline function
     
-1.  Import developer profile.
+1. Import developer profile.
 
     ``` syntaxhighlighter-pre
             importDeveloperProfile(importIntoExistingKeychain: false,
                 profileId: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX')
     ```
 
-2.  Build the project and output the archive.
+2. Build the project and output the archive.
 
     ``` syntaxhighlighter-pre
             xcodeBuild(
@@ -412,7 +406,7 @@ archive output in the Xcode Build step.
             )
     ```
 
-3.  Export the IPA file from the archive.
+3. Export the IPA file from the archive.
 
     ``` syntaxhighlighter-pre
         exportIpa(
@@ -433,7 +427,7 @@ archive output in the Xcode Build step.
         )
     ```
 
-4.  Upload the exported IPA file.  
+4. Upload the exported IPA file.  
 
 > When using "XCode's" Automatically manage signing ", various ways are required, so please note the points to be noted separately.
 
@@ -445,13 +439,13 @@ Here's one strategy:
 
 ###### install multiple versions of xcode
 
-0\. Note current config.
+1. Note current config.
+```
+    xcode-select -p
+```
+2. download xcode DMGs from <http://developer.apple.com/downloads/>
 
-xcode-select -p
-
-1\. download xcode DMGs from <http://developer.apple.com/downloads/>
-
-2\. enable install from everywhere (under System preferences / Security)
+3. enable install from everywhere (under System preferences / Security)
 
 Without that I had problems installing xcode, without graphical
 feedback, tested on 10.9.5, freshly booted.
@@ -467,21 +461,21 @@ pid:57656 refs=6 @ 0x7fa5d9f6df40 but it still has
 stopped. : LASApplication.cp \#2468 SetApplicationInStoppedState()
 q=LSSession 100027/0x186bb queue
 
-3\. open DMG file, copy app to /Applications. This might take a while.
+3. open DMG file, copy app to /Applications. This might take a while.
 
-4\. close /Volumes/Xcode (otherwise installation won't start)
+4. close /Volumes/Xcode (otherwise installation won't start)
 
-5\. start Xcode, accept agreement, install missing packages if necessary.
+5. start Xcode, accept agreement, install missing packages if necessary.
 This might take a while. Close xcode after GUI opens.
 
-6\. move freshly installed Xcode to new path, e.g.
+6. move freshly installed Xcode to new path, e.g.
 
 sudo mv /Applications/Xcode.app /Applications/Xcode6.1.app
 
 (I use this so that the xcode app appears with version number under
 spotlight)
 
-7\. reset default xcode-select if necessary (installation might have
+7. reset default xcode-select if necessary (installation might have
 changed it / reset to /Applications/Xcode.app)
 
 sudo xcode-select -s /Applications/Xcode6.1.app
@@ -490,7 +484,7 @@ sudo xcode-select -s /Applications/Xcode6.1.app
 
 ###### Select the xcode version at runtime
 
-1\. Use EnvInject plugin  
+1. Use EnvInject plugin
 2. for jobs that require the non default do something like
 
 DEVELOPER\_DIR=/Applications/Xcode6.0.1.app/Contents/Developer
@@ -516,7 +510,7 @@ This will block the build with a message like
 `"User interaction is not allowed"` until it is dismissed.  
 Just select 'Always Allow' the first time and it shouldn't need to ask
 again.  
-![](docs/images/308d472628999c9f1961068c9af34e49a31c76c7.png)
+![](docs/images/Screenshot_2021-05-26_17.31.50.png)
 
 If this prompt is not showing on the build machine, you can force it to
 appear by running the codesign command that failed from a terminal on
